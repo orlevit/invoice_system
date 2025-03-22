@@ -36,7 +36,7 @@ def convert_to_jpg(file_name, fh):
 def download_and_save_image(service, cursor, conn, file_id, file_name, save_folder):
     
     if image_exists(cursor, file_id):
-        logger.warning(f"Image {file_name} already exists in the database. Skipping.")
+        logger.info(f"Image {file_name} already exists in the database. Skipping.")
         return
     
     request = service.files().get_media(fileId=file_id)
