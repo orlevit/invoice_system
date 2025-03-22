@@ -1,3 +1,13 @@
+invoice/files
+notebooks/
+llm_env/
+invoice/*.db
+invoice/tests
+QA_IRC/scrap/sections/*.txt
+.vscode
+QA_IRC/chroma_db/
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
