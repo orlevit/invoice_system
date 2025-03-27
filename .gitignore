@@ -6,6 +6,8 @@ invoice/tests
 QA_IRC/scrap/sections/*.txt
 .vscode
 QA_IRC/chroma_db/
+credentials.json
+*.csv
 
 
 # Byte-compiled / optimized / DLL files
