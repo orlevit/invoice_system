@@ -1,4 +1,6 @@
 import logging
+import colorlog
+
 from invoice_config import LOGGER_FILE
 
 def setup_logger():
@@ -14,7 +16,17 @@ def setup_logger():
     file_handler.setLevel(logging.INFO)
     
     # Define log format
-    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    formatter = colorlog.ColoredFormatter(
+    "%(log_color)s%(asctime)s - %(levelname)s - %(reset)s%(message)s", 
+    log_colors={
+        'DEBUG': 'cyan',
+        'INFO': 'green',
+        'WARNING': 'yellow',
+        'ERROR': 'red',
+        'CRITICAL': 'bold_red',
+        })
+    # For single color
+    #formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
     console_handler.setFormatter(formatter)
     file_handler.setFormatter(formatter)
     
