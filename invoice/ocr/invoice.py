@@ -1,16 +1,20 @@
 import ast
+
 from logger import logger
 from database.database import get_all_db_data, update_image_detail, update_revenue_expense
 from ocr.helper import get_openai_client, encode_image
 from invoice_config import INVOICE_PROMPT, OPENAI_MODEL, TABLE_NAME
 
 def read_db_image_to_details(cursor, conn, openai_api_key):
-    for id, image_blob, details in get_all_db_data(cursor, TABLE_NAME):
+    for image_id, image_name, image_blob, details in get_all_db_data(cursor, TABLE_NAME):
 
         if details is None:
+            logger.info("Extract details for image: %s", image_name)
             details = analyze_image(image_blob, openai_api_key)
-            update_image_detail(cursor, conn, id, 'details', details)
-            update_revenue_expense(cursor, conn, id, details, 'revenue_expense')
+            
+            if details is not None:
+                update_image_detail(cursor, conn, image_id, 'details', details)
+                update_revenue_expense(cursor, conn, image_id, details, 'revenue_expense')
 
 def analyze_image(image_blob, openai_api_key):
     client = get_openai_client(openai_api_key)
@@ -38,6 +42,10 @@ def analyze_image(image_blob, openai_api_key):
         response_text = response.choices[0].message.content
 
         valid_dict1 = extract_valid_dict(response_text, chatgpt_messages, OPENAI_MODEL, client, additional_text='')
+
+        if valid_dict1 is None:
+            return None
+
         response_vat_dict = extract_valid_vat_dict(valid_dict1, chatgpt_messages, OPENAI_MODEL, client)
         return response_vat_dict
 
@@ -83,8 +91,9 @@ def extract_valid_dict(response_text, chatgpt_messages, model_name, client, addi
             chatgpt_messages = prepare_chatgpt_msg(cur_content, chatgpt_messages)
             extraction_response = chatgpt_request_extraction(chatgpt_messages, model_name, client)
             response_text = extraction_response.choices[0].message.content
-    
-    raise ValueError("Failed to extract a valid Python dictionary after multiple attempts.")
+
+    return None 
+    # raise ValueError("Failed to extract a valid Python dictionary after multiple attempts.")
 
 def check_type(response_json):
     # Check if all values are numbers and then check the equality
@@ -135,7 +144,8 @@ def extract_valid_vat_dict(response_json, chatgpt_messages, model_name, client, 
            response_text = extraction_response.choices[0].message.content
            response_json = extract_valid_dict(response_text, chatgpt_messages, OPENAI_MODEL, client)
     
-    raise ValueError("Failed to extract correct values for JSON after multiple attempts.")
+    return None 
+    # raise ValueError("Failed to extract correct values for JSON after multiple attempts.")
 
 #IMAGE_PATH = "2.jpeg"  # Change this to your image path
 #result = analyze_image(IMAGE_PATH, OPENAI_API_KEY)

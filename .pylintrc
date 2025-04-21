@@ -1,0 +1,2 @@
+[MASTER]
+init-hook = 'import sys; sys.path.append("/home/or/dev/invoice_system/invoice")'

@@ -1,6 +1,6 @@
 import logging
 import colorlog
-
+ 
 from invoice_config import LOGGER_FILE
 
 def setup_logger():

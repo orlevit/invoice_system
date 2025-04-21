@@ -1,50 +1,74 @@
+import os
 import ast
-import sqlite3
+import shutil
 import pandas as pd
-from invoice_config import DB_FILE, TABLE_NAME
+from logger import logger
+from database.database import blob_to_image
+from invoice_config import (
+    EXPENSES_FILE,
+    REVENUES_FILE,
+    FAILED_IMAGES_FILE,
+    TABLE_NAME,
+    UNPREOCESSES_IMGS_DIR,
+    OUTPUT_DIR,
+)
 
-# Open SQLite connection
-conn = sqlite3.connect(DB_FILE)
-cursor = conn.cursor()
+
+def create_failed_images(conn):
+    query = f"SELECT  name, image FROM {TABLE_NAME} WHERE revenue_expense IS NULL"
+    cursor = conn.cursor()
+    cursor.execute(query)
+    
+    count = 0
+    for  name, img_blob in cursor.fetchall():
+        if '.' in name:
+            name = name.rsplit('.',1)[0]
+
+        filename = f"{name}.jpg"
+        path = os.path.join(UNPREOCESSES_IMGS_DIR, filename)
+
+        img = blob_to_image(img_blob)
+        img.save(path, format="JPEG")
+        # with open(path, "wb") as f:
+        #     f.write(img)
+        count += 1
+
+    logger.info("Could not extracts details of %d images. The images exist in %s", count, UNPREOCESSES_IMGS_DIR)
+
+
+def clean_target_folder():
+    if os.path.isdir(OUTPUT_DIR):
+        shutil.rmtree(OUTPUT_DIR)
+
+    os.makedirs(UNPREOCESSES_IMGS_DIR, exist_ok=True)
+
+
+def extract_json_details(df):
+    details_data = df["details"].apply(lambda x: ast.literal_eval(x) if x else {})
+    details_df = pd.json_normalize(details_data)
+    return pd.concat([df.drop(columns=["details"]), details_df], axis=1)
+
+
+def dump_to_csv(conn, revenue_expense, output_file):
+    if revenue_expense is None:
+        where_clause = "revenue_expense IS NULL"
+    else:
+        where_clause = f"revenue_expense = {revenue_expense}"
+
+    query = f"SELECT name, details FROM {TABLE_NAME} WHERE {where_clause}"
+
+    df = pd.read_sql(query, conn)
+    df = extract_json_details(df)
+    df.to_csv(output_file, index=False)
+
 
 def create_csv(conn):
-    # Query for expenses and revenues
-    query_expenses = f"SELECT id, details FROM {TABLE_NAME} WHERE revenue_expense = 0"
-    query_revenues = f"SELECT id, details FROM {TABLE_NAME} WHERE revenue_expense = 1"
+    dump_to_csv(conn, revenue_expense=0, output_file=EXPENSES_FILE)
+    dump_to_csv(conn, revenue_expense=1, output_file=REVENUES_FILE)
+    dump_to_csv(conn, revenue_expense=None, output_file=FAILED_IMAGES_FILE)
 
-    # Fetch data for expenses and revenues
-    expenses_df = pd.read_sql(query_expenses, conn)
-    revenues_df = pd.read_sql(query_revenues, conn)
 
-    # Function to extract JSON details
-    def extract_json_details(df):
-        # Parse the 'details' column as JSON
-        details_data = df['details'].apply(lambda x: ast.literal_eval(x) if x else {})
-        
-        # Convert JSON data into separate columns and merge with the original dataframe
-        details_df = pd.json_normalize(details_data)
-        
-        # Concatenate the original dataframe with the parsed JSON data
-        df = pd.concat([df, details_df], axis=1)
-        
-        return df
-
-    # Extract the JSON details for both expenses and revenues
-    expenses_df = extract_json_details(expenses_df)
-    revenues_df = extract_json_details(revenues_df)
-
-    # Drop the 'details' column as it's no longer needed
-    expenses_df = expenses_df.drop(columns=['details'])
-    revenues_df = revenues_df.drop(columns=['details'])
-
-    # Prepare the CSV file paths
-    expenses_csv = 'expenses.csv'
-    revenues_csv = 'revenues.csv'
-
-    # Save expenses data to CSV
-    expenses_df.to_csv(expenses_csv, index=False)
-    print(f"Expenses data with JSON details successfully written to {expenses_csv}")
-
-    # Save revenues data to CSV
-    revenues_df.to_csv(revenues_csv, index=False)
-    print(f"Revenues data with JSON details successfully written to {revenues_csv}")
+def db2csv_main(conn):
+    clean_target_folder()
+    create_csv(conn)
+    create_failed_images(conn)

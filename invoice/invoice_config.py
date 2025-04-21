@@ -2,6 +2,13 @@ import os
 
 # Directories
 CURRENT_DIRECTORY = os.getcwd()
+OUTPUT_DIR = os.path.join(CURRENT_DIRECTORY, "output") 
+UNPREOCESSES_IMGS_DIR = os.path.join(OUTPUT_DIR, "failed_processed_images") 
+
+# Files
+EXPENSES_FILE = os.path.join(OUTPUT_DIR, "expenses.csv") 
+REVENUES_FILE = os.path.join(OUTPUT_DIR, "revenues.csv") 
+FAILED_IMAGES_FILE = os.path.join(OUTPUT_DIR, "failed_processed_images.csv") 
 
 # Google dirve 
 SCOPES = ['https://www.googleapis.com/auth/drive']

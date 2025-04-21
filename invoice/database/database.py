@@ -31,7 +31,7 @@ def get_all_db_data(cursor, table_name):
     if not table_name.isidentifier():
         raise ValueError(f"Invalid table name: {table_name}")
     
-    rows = cursor.execute(f"SELECT id, image, details FROM {table_name}").fetchall()
+    rows = cursor.execute(f"SELECT id, name, image, details FROM {table_name}").fetchall()
 
     for row in rows:
         yield row

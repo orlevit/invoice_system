@@ -8,7 +8,8 @@ QA_IRC/scrap/sections/*.txt
 QA_IRC/chroma_db/
 credentials.json
 *.csv
-
+pyrightconfig.json
+output/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
