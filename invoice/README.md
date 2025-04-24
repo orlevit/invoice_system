@@ -117,10 +117,12 @@ This project implements an AI-based system that automates the extraction of invo
     pip install -r requirements.txt
    ```
 4. **Set up constants:**
+
     a. Set up .env file with *OPENAI_API_KEY*.
+   
     b. In *invoice_config.py*, change in *FOLDER_ID* for the Google Drive folder ID.
 
-5. **Run the Pipeline:**
+6. **Run the Pipeline:**
    ```bash
    python main.py
    ```
