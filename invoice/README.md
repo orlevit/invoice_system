@@ -19,7 +19,8 @@
 ## Overview
 
 This project implements an AI-based system that automates the extraction of invoice data for freelancers. Instead of manually typing invoice details, the system processes scanned or photographed invoice images from Google Drive and summarizes them into structured CSV files, greatly simplifying bookkeeping and reporting.
-[Image Processing and Metadata Extraction](images/invoice.gif).
+
+![Image Processing and Metadata Extraction](images/invoice.gif).
 
 ---
 
