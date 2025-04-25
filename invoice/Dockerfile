@@ -12,6 +12,6 @@ COPY . /app
 
 WORKDIR /app
 
-RUN git clone https://github.com/your-username/your-repository.git .
+RUN pip install --upgrade pip && pip install -r requirements.txt
 
 CMD ["python", "main.py"]
