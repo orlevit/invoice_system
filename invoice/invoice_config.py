@@ -14,7 +14,7 @@ FAILED_IMAGES_FILE = os.path.join(OUTPUT_DIR, "failed_processed_images.csv")
 SCOPES = ['https://www.googleapis.com/auth/drive']
 SERVICE_ACCOUNT_FILE = 'credentials.json'
 SAVE_FOLDER = "downloaded_images"
-FOLDER_ID = "1GROiW6oVNdIrDme-psc5d7N1HWdnttqe"
+FOLDER_ID = "..."
 
 # Database
 DB_FILE = "images.db"
