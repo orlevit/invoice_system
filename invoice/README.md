@@ -119,8 +119,10 @@ This project implements an AI-based system that automates the extraction of invo
 4. **Set up constants:**
 
     a. Set up .env file with *OPENAI_API_KEY*.
-   
-    b. In *invoice_config.py*, change in *FOLDER_ID* for the Google Drive folder ID.
+
+    b. Add *credentials.json* file for Google Drive OAuth 2.0 client credentials.
+
+    c. In *invoice_config.py*, change in *FOLDER_ID* for the Google Drive folder ID.
 
 6. **Run the Pipeline:**
    ```bash
